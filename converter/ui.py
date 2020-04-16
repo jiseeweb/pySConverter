@@ -1,6 +1,7 @@
 import os
 from tkinter import *
 from tkinter import messagebox
+from tkinter import filedialog
 from conversion import Converter
 
 c = Converter()
@@ -8,11 +9,11 @@ c = Converter()
 window = Tk()
 
 window.title('Converter')
-window.geometry('500x500')
+window.geometry('500x550')
 
 def main_program():
 
-    program_name = Label(window, text='MConversion')
+    program_name = Label(window, text='pyConversion')
     program_name.config(font=('MS Sans', 25))
     program_name.pack()
     # SAVE FOLDER
@@ -23,11 +24,25 @@ def main_program():
     set_save_location_label.pack()
     save_location.pack()
 
+    save_location_browse = Button(window, text='Browse...', command=lambda : browse_directory(save_location, filedialog.askdirectory))
+    save_location_browse.pack()
+
     # DB FILE PATH
     set_db_location_label = Label(window, text='DB filepath')
     db_fp = Entry(window, justify=LEFT, width=50)
     set_db_location_label.pack()
     db_fp.pack()
+
+    def browse_directory(entry_field, methodname):
+        str_var = StringVar()
+        file_dialog = methodname()
+        abs_path = os.path.abspath(file_dialog)
+        str_var.set(abs_path)
+        entry_field.configure(textvariable=str_var)
+
+    db_path_btn = Button(window, text='Browse...', command=lambda : browse_directory(db_fp, filedialog.askopenfilename))
+    db_path_btn.pack()
+
 
     # DRIVER NAME
     set_driver_name_label = Label(window, text='Driver name')
@@ -38,21 +53,39 @@ def main_program():
     set_driver_name.pack()
 
 
+    def check_state(entry_state=NORMAL):
+        save_location_browse.config(state=entry_state)
+        db_path_btn.config(state=entry_state)
+        save_location.config(state=entry_state)
+        db_fp.config(state=entry_state)
+        set_driver_name.config(state=entry_state)
+
+
     def save_all_settings():
         #Save all settings that was given in the entry fields,
         #uses default values if leave blank.
         allowed_ext = ['.mdb', '.accdb']
+        is_exists = os.path.exists(db_fp.get())
         c.save_dest(save_location.get())
-        filepath, ext = os.path.splitext(db_fp.get())
-
-        if ext in allowed_ext:
-            c.set_dbq_path(db_fp.get())
+        if is_exists:
+            filepath, ext = os.path.splitext(db_fp.get())
+            if ext in allowed_ext:
+                c.set_dbq_path(db_fp.get())
+                check_state(DISABLED)
+            else:
+                messagebox.showinfo(title='File not supported',\
+                message="The database file that you're trying to update is not supported.\nOperation Aborted.\nSupported files(.mdb, .accdb)")
+                return None
         else:
             messagebox.showinfo(title='File not supported',\
-            message="The database file that you're trying to update is not supported.\nOperation Aborted.\nSupported files(.mdb, .accdb)")
+            message="Database filepath doesn\'t exist.")
             return None
-        c.set_driver_name(set_driver_name.get())
-        print(c.default_save_path , '\n', c.dbq_path, '\n', c.driver_name)
+        try:
+            c.set_driver_name(set_driver_name.get())
+        except FileNotFoundError as err:
+            messagebox.showinfo(title='File not Found', message='File or directory not found.\nPlease check your specified paths. again.')
+        messagebox.showinfo(title='Saved', message='Successfully saved.')
+
 
     user_info_table_name_label = Label(window, text='User Info Table name (Case sensitive)')
     user_info_table_var = StringVar()
@@ -73,9 +106,13 @@ def main_program():
     status_check = StringVar()
 
     def perform_update():
+
         status_check.set('Starting update...')
         c.autosave = True
-        c.build_connection()
+        try:
+            c.build_connection()
+        except FileNotFoundError as err:
+            messagebox.showinfo(title='File not Found', message='File or directory not found.\nPlease check your specified paths. again.')
         c.start_connection()
         user_info = user_info_table_name.get().strip()
         target_row_col = tuple(targets.get().strip().split(','))
@@ -83,12 +120,24 @@ def main_program():
         target_table = c.select_targets(target_row_col)
         c.update_database(target_table)
         status_check.set('Done.')
+        messagebox.showinfo(title='Success', message='Finished.')
 
     status_label = Label(window, text='Status')
     status = Label(window, textvariable=status_check)
     status_label.pack()
     status.pack()
 
+    note_label = Label(window, \
+    text='''
+    Notes:
+    1.) USERINFO and TABLE names are case sensitive.
+    2.) DB path must be a file ( eg; path/to/mdb/att.mdb )
+    ''', justify=LEFT)
+    note_label.pack()
+
+
+    edit_settings = Button(window, text='Edit Settings', command= lambda : check_state())
+    edit_settings.pack(fill=X)
 
     save_settings = Button(window, text='Save', command=save_all_settings)
     save_settings.pack(fill=X)
