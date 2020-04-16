@@ -66,8 +66,8 @@ class Converter:
             return 'File or directory not found.\nPlease check your specified paths. again.'
         shutil.copy(self.dbq_path, filepath)
         conn_str = (
-            r'Driver={}'
-            r';DBQ={}'.format(self.driver_name, filepath)
+            r'Driver={};'
+            r'DBQ={}'.format(self.driver_name, filepath)
         )
         self.conn_str = conn_str
 
