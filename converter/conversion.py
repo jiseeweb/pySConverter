@@ -60,11 +60,14 @@ class Converter:
 
     def build_connection(self):
         #Builds connection string for use of connection by pyodbc.
-        filepath = os.path.join(self.create_sub_folder(), os.path.basename(self.dbq_path))
+        try:
+            filepath = os.path.join(self.create_sub_folder(), os.path.basename(self.dbq_path))
+        except FileNotFoundError as err:
+            return 'File or directory not found.\nPlease check your specified paths. again.'
         shutil.copy(self.dbq_path, filepath)
         conn_str = (
-            r'Driver={};'
-            r'DBQ={}'.format(self.driver_name, filepath)
+            r'Driver={}'
+            r';DBQ={}'.format(self.driver_name, filepath)
         )
         self.conn_str = conn_str
 
