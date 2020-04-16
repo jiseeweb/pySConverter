@@ -50,7 +50,6 @@ class Converter:
         #Set the database filepath to use when building connection.
         self.dbq_path = dbq_path
 
-
     def create_sub_folder(self):
         now = datetime.now()
         folder_name = os.path.join(self.default_save_path, now.strftime('%m-%d-%y %H_%M_%S %p'))
@@ -148,23 +147,20 @@ class Converter:
             col, table_name = targets
             userinfo = self.get_userinfo(table_name='USERINFO')
             datas = self.cursor.execute(r"select {} from {}".format(col, table_name)).fetchall()
-
             for users in datas:
                 for user_id in userinfo:
                     if user_id[0] == users[0]:
-                        # self.cursor.execute("update {} set USERID=? where USERID=?".format(table_name,  user_id[1], users[0]))
-                        self.cursor.execute("update {} set USERID={} where USERID={}".format(table_name, user_id[1], users[0]))
-
+                        self.cursor.execute("update {} set USERID=? where USERID=?".format(table_name), user_id[1], users[0])
+                        # self.cursor.execute("update {} set USERID={} where USERID={}".format(table_name, user_id[1], users[0]))
                     else:
                         continue
-            print('Done.')
-            print('Saving...')
+
+
             if not self.autosave:
                 self.connection.commit()
 
             else:
-                print('Finished.')
-                print('Conversion completed')
+                print('Done.')
 
 
 # c = Converter()
