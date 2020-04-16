@@ -106,7 +106,7 @@ def main_program():
     status_check = StringVar()
 
     def perform_update():
-
+        #Start gathering data in entry fields and updates mdb file.
         status_check.set('Starting update...')
         c.autosave = True
         try:
@@ -118,7 +118,7 @@ def main_program():
         target_row_col = tuple(targets.get().strip().split(','))
         c.get_userinfo(user_info)
         target_table = c.select_targets(target_row_col)
-        c.update_database(target_table)
+        message = c.update_database(target_table)
         status_check.set('Done.')
         messagebox.showinfo(title='Success', message='Finished.')
 
