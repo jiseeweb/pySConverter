@@ -152,7 +152,9 @@ class Converter:
             for users in datas:
                 for user_id in userinfo:
                     if user_id[0] == users[0]:
-                        self.cursor.execute("update {} set USERID=? where USERID=?".format(table_name,  user_id[1], users[0]))
+                        # self.cursor.execute("update {} set USERID=? where USERID=?".format(table_name,  user_id[1], users[0]))
+                        self.cursor.execute("update {} set USERID={} where USERID={}".format(table_name, user_id[1], users[0]))
+
                     else:
                         continue
             print('Done.')
