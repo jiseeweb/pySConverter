@@ -1,3 +1,5 @@
 PySConverter
 
-Updates the a column in MDB table of Biometric devices specifically ZKTeco and Granding devices which can be use to upload in HR System.
+Updates column of MDB table of Biometric devices (ZKTeco and Granding) devices which can be use to upload in our in HR System.
+
+
